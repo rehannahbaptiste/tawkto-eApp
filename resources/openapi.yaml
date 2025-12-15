@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: Sample Public Services API
+  version: 1.0.0
+  description: |
+    A sample public API for selecting a service and a branch, returning a link
+    that includes both the serviceId and branchId.
+
+servers:
+  - url: https://api.example.com
+
+tags:
+  - name: Catalog
+    description: Public catalog endpoints
+  - name: Selections
+    description: Endpoints to submit user selections
+
+paths:
+  /services:
+    get:
+      tags: [Catalog]
+      summary: List available services
+      operationId: listServices
+      responses:
+        "200":
+          description: A list of services
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceListResponse"
+              examples:
+                example:
+                  value:
+                    services:
+                      - id: svc-001
+                        name: Passport Renewal
+                      - id: svc-002
+                        name: Driver’s Permit Application
+
+  /branches:
+    get:
+      tags: [Catalog]
+      summary: List available branches
+      description: Optionally filter branches by serviceId.
+      operationId: listBranches
+      parameters:
+        - name: serviceId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: If provided, only branches offering this service are returned.
+      responses:
+        "200":
+          description: A list of branches
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BranchListResponse"
+              examples:
+                example:
+                  value:
+                    branches:
+                      - id: br-001
+                        name: Port of Spain
+                        serviceIds: [svc-001, svc-002]
+                      - id: br-002
+                        name: San Fernando
+                        serviceIds: [svc-001]
+
+  /selections/service:
+    post:
+      tags: [Selections]
+      summary: Select a service
+      operationId: selectService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SelectServiceRequest"
+            examples:
+              example:
+                value:
+                  serviceId: svc-001
+      responses:
+        "201":
+          description: Service selected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SelectServiceResponse"
+              examples:
+                example:
+                  value:
+                    selectionId: sel-8f3a2b
+                    serviceId: svc-001
+                    links:
+                      branches: /branches?serviceId=svc-001
+                      selectBranch: /selections/branch
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Service not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /selections/branch:
+    post:
+      tags: [Selections]
+      summary: Select a branch for a previously selected service
+      operationId: selectBranch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SelectBranchRequest"
+            examples:
+              example:
+                value:
+                  selectionId: sel-8f3a2b
+                  branchId: br-002
+      responses:
+        "201":
+          description: Branch selected, final link generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SelectBranchResponse"
+              examples:
+                example:
+                  value:
+                    selectionId: sel-8f3a2b
+                    serviceId: svc-001
+                    branchId: br-002
+                    link: /appointments/new?serviceId=svc-001&branchId=br-002
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Selection or branch not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Branch does not offer the selected service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Service:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          example: svc-001
+        name:
+          type: string
+          example: Passport Renewal
+
+    Branch:
+      type: object
+      required: [id, name, serviceIds]
+      properties:
+        id:
+          type: string
+          example: br-001
+        name:
+          type: string
+          example: Port of Spain
+        serviceIds:
+          type: array
+          items:
+            type: string
+          example: [svc-001, svc-002]
+
+    ServiceListResponse:
+      type: object
+      required: [services]
+      properties:
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/Service"
+
+    BranchListResponse:
+      type: object
+      required: [branches]
+      properties:
+        branches:
+          type: array
+          items:
+            $ref: "#/components/schemas/Branch"
+
+    SelectServiceRequest:
+      type: object
+      required: [serviceId]
+      properties:
+        serviceId:
+          type: string
+          description: The service the user selected.
+          example: svc-001
+
+    SelectServiceResponse:
+      type: object
+      required: [selectionId, serviceId, links]
+      properties:
+        selectionId:
+          type: string
+          description: Server-generated selection identifier.
+          example: sel-8f3a2b
+        serviceId:
+          type: string
+          example: svc-001
+        links:
+          type: object
+          required: [branches, selectBranch]
+          properties:
+            branches:
+              type: string
+              description: Link to fetch branches for the selected service.
+              example: /branches?serviceId=svc-001
+            selectBranch:
+              type: string
+              description: Endpoint to POST the chosen branch.
+              example: /selections/branch
+
+    SelectBranchRequest:
+      required: [serviceId, branchId]
+
+    SelectBranchResponse:
+      type: object
+      required: [selectionId, serviceId, branchId, link]
+      properties:
+        selectionId:
+          type: string
+          example: sel-8f3a2b
+        serviceId:
+          type: string
+          example: svc-001
+        branchId:
+          type: string
+          example: br-002
+        link:
+          type: string
+          description: Final link containing both IDs.
+          example: /appointments/new?serviceId=svc-001&branchId=br-002
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: serviceId is required
+        details:
+          type: array
+          items:
+            type: object
+          description: Optional machine-readable details.
