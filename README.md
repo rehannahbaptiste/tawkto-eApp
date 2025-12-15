@@ -1,59 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tawkto eApp - Node.js API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A public services API for selecting services and branches, built with Node.js and Express.
 
-## About Laravel
+## 🚀 Quick Start
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Prerequisites
+- Node.js 18+ installed
+- npm or yarn
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Local Development
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## Learning Laravel
+2. **Set up environment**
+   ```bash
+   cp .env.example .env
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+4. **Access the API**
+   - API: http://localhost:3000
+   - OpenAPI Spec: http://localhost:3000/openapi.yaml
 
-## Laravel Sponsors
+### Production
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+npm start
+```
 
-### Premium Partners
+## 📡 API Endpoints
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/services` | List all available services |
+| GET | `/api/branches?serviceId=xxx` | List branches (optionally filtered) |
+| POST | `/api/selections/service` | Select a service |
+| POST | `/api/selections/branch` | Select a branch |
+| GET | `/openapi.yaml` | OpenAPI specification |
 
-## Contributing
+## 🔧 Environment Variables
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgresql://... (optional)
+CORS_ORIGIN=*
+```
 
-## Code of Conduct
+## 📦 Deploy to Render
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Option 1: Using render.yaml (Blueprint)
 
-## Security Vulnerabilities
+1. Push this code to GitHub
+2. Go to [Render Dashboard](https://dashboard.render.com)
+3. Click "New" → "Blueprint"
+4. Connect your repository
+5. Render will automatically deploy based on `render.yaml`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Option 2: Manual Setup
 
-## License
+1. Go to [Render Dashboard](https://dashboard.render.com)
+2. Click "New" → "Web Service"
+3. Connect your repository
+4. Configure:
+   - **Name**: tawkto-eapp
+   - **Runtime**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: Free
+5. Add environment variable: `NODE_ENV=production`
+6. Click "Create Web Service"
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Your API will be live at: `https://tawkto-eapp.onrender.com`
+
+## 🗄️ Database (Optional)
+
+Currently uses in-memory data. To add PostgreSQL:
+
+1. On Render, create a PostgreSQL database
+2. Copy the connection string
+3. Add to your web service environment variables:
+   ```
+   DATABASE_URL=postgresql://...
+   ```
+
+## 📝 Project Structure
+
+```
+tawkto-eApp/
+├── src/
+│   ├── index.js           # Main application entry
+│   ├── routes/
+│   │   └── catalog.js     # API route handlers
+│   ├── config/
+│   │   └── database.js    # Database configuration
+│   └── utils/
+│       └── helpers.js     # Utility functions
+├── resources/
+│   └── openapi.yaml       # API specification
+├── .env                   # Environment config (local)
+├── .env.production        # Production environment template
+├── render.yaml            # Render deployment blueprint
+└── package.json           # Dependencies and scripts
+```
+
+## 🛠️ Available Scripts
+
+- `npm start` - Start production server
+- `npm run dev` - Start development server with hot reload
+
+## 📖 API Documentation
+
+See the OpenAPI specification at `/openapi.yaml` or view it in [Swagger Editor](https://editor.swagger.io/).
+
+## 🔒 Security
+
+- Helmet.js for security headers
+- CORS configured
+- Input validation with express-validator
+- Non-root Docker user
+
+## 📄 License
+
+MIT

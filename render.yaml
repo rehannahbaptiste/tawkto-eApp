@@ -1,0 +1,25 @@
+services:
+  # Main web service
+  - type: web
+    name: tawkto-eapp
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    # If you want to add a PostgreSQL database:
+    # - key: DATABASE_URL
+    #   fromDatabase:
+    #     name: tawkto-eapp-db
+    #     property: connectionString
+
+# Uncomment to add a PostgreSQL database
+# databases:
+#   - name: tawkto-eapp-db
+#     plan: free
+#     databaseName: tawkto_eapp
+#     user: tawkto_user
