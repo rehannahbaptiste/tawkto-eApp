@@ -1,13 +1,19 @@
 openapi: 3.0.3
 info:
-  title: Sample Public Services API
+  title: Tawkto eApp - Public Services API
   version: 1.0.0
   description: |
-    A sample public API for selecting a service and a branch, returning a link
+    A public API for selecting a service and a branch, returning a link
     that includes both the serviceId and branchId.
+    
+    This API follows OpenAPI 3.0.3 specification for integration with Tawk.to
+    and other third-party services.
 
 servers:
-  - url: https://api.example.com
+  - url: https://tawkto-eapp.onrender.com/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Local development server
 
 tags:
   - name: Catalog
@@ -16,7 +22,7 @@ tags:
     description: Endpoints to submit user selections
 
 paths:
-  /services:
+  /api/services:
     get:
       tags: [Catalog]
       summary: List available services
@@ -37,7 +43,7 @@ paths:
                       - id: svc-002
                         name: Driver’s Permit Application
 
-  /branches:
+  /api/branches:
     get:
       tags: [Catalog]
       summary: List available branches
@@ -68,7 +74,7 @@ paths:
                         name: San Fernando
                         serviceIds: [svc-001]
 
-  /selections/service:
+  /api/selections/service:
     post:
       tags: [Selections]
       summary: Select a service
@@ -96,8 +102,8 @@ paths:
                     selectionId: sel-8f3a2b
                     serviceId: svc-001
                     links:
-                      branches: /branches?serviceId=svc-001
-                      selectBranch: /selections/branch
+                      branches: /api/branches?serviceId=svc-001
+                      selectBranch: /api/selections/branch
         "400":
           description: Invalid request
           content:
@@ -111,7 +117,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /selections/branch:
+  /api/selections/branch:
     post:
       tags: [Selections]
       summary: Select a branch for a previously selected service
@@ -234,11 +240,11 @@ components:
             branches:
               type: string
               description: Link to fetch branches for the selected service.
-              example: /branches?serviceId=svc-001
+              example: /api/branches?serviceId=svc-001
             selectBranch:
               type: string
               description: Endpoint to POST the chosen branch.
-              example: /selections/branch
+              example: /api/selections/branch
 
     SelectBranchRequest:
       required: [serviceId, branchId]
