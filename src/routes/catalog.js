@@ -84,12 +84,28 @@ router.get(
 // POST /api/selections/service - Select a service
 router.post(
   '/selections/service',
-  body('serviceId').isString().notEmpty(),
+  body('serviceName').optional().isString(),
+  body('serviceId').optional().isString(),
   handleValidation,
   (req, res) => {
-    const { serviceId } = req.body;
+    const { serviceName, serviceId } = req.body;
     
-    const service = services.find(s => s.id === serviceId);
+    if (!serviceName && !serviceId) {
+      return res.status(400).json({
+        code: 'INVALID_REQUEST',
+        message: 'Either serviceName or serviceId is required.'
+      });
+    }
+    
+    // Find by name (natural) or ID (fallback)
+    let service;
+    if (serviceName) {
+      service = services.find(s => 
+        s.name.toLowerCase() === serviceName.toLowerCase()
+      );
+    } else {
+      service = services.find(s => s.id === serviceId);
+    }
     
     if (!service) {
       return res.status(404).json({
@@ -103,8 +119,9 @@ router.post(
     res.status(201).json({
       selectionId,
       serviceId: service.id,
+      serviceName: service.name,
       links: {
-        branches: `/api/branches?serviceId=${service.id}`,
+        branches: `/api/branches?serviceName=${encodeURIComponent(service.name)}`,
         selectBranch: '/api/selections/branch'
       }
     });
@@ -114,13 +131,40 @@ router.post(
 // POST /api/selections/branch - Select a branch
 router.post(
   '/selections/branch',
-  body('serviceId').isString().notEmpty(),
-  body('branchId').isString().notEmpty(),
+  body('serviceName').optional().isString(),
+  body('serviceId').optional().isString(),
+  body('branchName').optional().isString(),
+  body('branchId').optional().isString(),
   handleValidation,
   (req, res) => {
-    const { serviceId, branchId } = req.body;
+    const { serviceName, serviceId, branchName, branchId } = req.body;
     
-    const branch = branches.find(b => b.id === branchId);
+    // Find service by name or ID
+    let service;
+    if (serviceName) {
+      service = services.find(s => 
+        s.name.toLowerCase() === serviceName.toLowerCase()
+      );
+    } else if (serviceId) {
+      service = services.find(s => s.id === serviceId);
+    }
+    
+    if (!service) {
+      return res.status(400).json({
+        code: 'SERVICE_REQUIRED',
+        message: 'Please specify a service (serviceName or serviceId).'
+      });
+    }
+    
+    // Find branch by name or ID
+    let branch;
+    if (branchName) {
+      branch = branches.find(b => 
+        b.name.toLowerCase() === branchName.toLowerCase()
+      );
+    } else if (branchId) {
+      branch = branches.find(b => b.id === branchId);
+    }
     
     if (!branch) {
       return res.status(404).json({
@@ -129,7 +173,7 @@ router.post(
       });
     }
     
-    if (!branch.serviceIds.includes(serviceId)) {
+    if (!branch.serviceIds.includes(service.id)) {
       return res.status(409).json({
         code: 'SERVICE_NOT_AVAILABLE',
         message: 'This branch does not offer the selected service.'
@@ -137,9 +181,11 @@ router.post(
     }
     
     res.status(201).json({
-      serviceId,
+      serviceId: service.id,
+      serviceName: service.name,
       branchId: branch.id,
-      link: `/appointments/new?serviceId=${serviceId}&branchId=${branch.id}`
+      branchName: branch.name,
+      link: `/appointments/new?serviceId=${service.id}&branchId=${branch.id}`
     });
   }
 );

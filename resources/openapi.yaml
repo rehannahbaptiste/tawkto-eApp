@@ -131,7 +131,7 @@ paths:
             examples:
               example:
                 value:
-                  serviceId: svc-001
+                  serviceName: Passport Renewal
       responses:
         "201":
           description: Service selected
@@ -144,8 +144,9 @@ paths:
                   value:
                     selectionId: sel-8f3a2b
                     serviceId: svc-001
+                    serviceName: Passport Renewal
                     links:
-                      branches: /api/branches?serviceId=svc-001
+                      branches: /api/branches?serviceName=Passport%20Renewal
                       selectBranch: /api/selections/branch
         "400":
   /api/selections/branch:
@@ -183,8 +184,8 @@ paths:
             examples:
               example:
                 value:
-                  selectionId: sel-8f3a2b
-                  branchId: br-002
+                  serviceName: Passport Renewal
+                  branchName: Port of Spain
       responses:
         "201":
           description: Branch selected, final link generated
@@ -195,9 +196,11 @@ paths:
               examples:
                 example:
                   value:
-                    selectionId: sel-8f3a2b
                     serviceId: svc-001
-                    branchId: br-002
+                    serviceName: Passport Renewal
+                    branchId: br-001
+                    branchName: Port of Spain
+                    link: /appointments/new?serviceId=svc-001&branchId=br-001
                     link: /appointments/new?serviceId=svc-001&branchId=br-002
         "400":
           description: Invalid request
@@ -267,16 +270,19 @@ components:
 
     SelectServiceRequest:
       type: object
-      required: [serviceId]
       properties:
+        serviceName:
+          type: string
+          description: The name of the service the user wants (e.g., "Passport Renewal", "Birth Certificate")
+          example: Passport Renewal
         serviceId:
           type: string
-          description: The service the user selected.
+          description: Optional service ID (for backward compatibility)
           example: svc-001
 
     SelectServiceResponse:
       type: object
-      required: [selectionId, serviceId, links]
+      required: [selectionId, serviceId, serviceName, links]
       properties:
         selectionId:
           type: string
@@ -285,6 +291,9 @@ components:
         serviceId:
           type: string
           example: svc-001
+        serviceName:
+          type: string
+          example: Passport Renewal
         links:
           type: object
           required: [branches, selectBranch]
@@ -292,32 +301,52 @@ components:
             branches:
               type: string
               description: Link to fetch branches for the selected service.
-              example: /api/branches?serviceId=svc-001
+              example: /api/branches?serviceName=Passport%20Renewal
             selectBranch:
               type: string
               description: Endpoint to POST the chosen branch.
               example: /api/selections/branch
 
     SelectBranchRequest:
-      required: [serviceId, branchId]
+      type: object
+      properties:
+        serviceName:
+          type: string
+          description: The name of the service (e.g., "Passport Renewal")
+          example: Passport Renewal
+        serviceId:
+          type: string
+          description: Optional service ID
+          example: svc-001
+        branchName:
+          type: string
+          description: The name of the branch the user wants to visit (e.g., "Port of Spain")
+          example: Port of Spain
+        branchId:
+          type: string
+          description: Optional branch ID
+          example: br-001
 
     SelectBranchResponse:
       type: object
-      required: [selectionId, serviceId, branchId, link]
+      required: [serviceId, serviceName, branchId, branchName, link]
       properties:
-        selectionId:
-          type: string
-          example: sel-8f3a2b
         serviceId:
           type: string
           example: svc-001
+        serviceName:
+          type: string
+          example: Passport Renewal
         branchId:
           type: string
-          example: br-002
+          example: br-001
+        branchName:
+          type: string
+          example: Port of Spain
         link:
           type: string
           description: Final link containing both IDs.
-          example: /appointments/new?serviceId=svc-001&branchId=br-002
+          example: /appointments/new?serviceId=svc-001&branchId=br-001
 
     Error:
       type: object
