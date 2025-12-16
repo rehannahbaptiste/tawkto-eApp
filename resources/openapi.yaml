@@ -26,6 +26,16 @@ paths:
     get:
       tags: [Catalog]
       summary: List available services
+      description: |
+        Get a list of all available government services that users can apply for.
+        
+        Users might ask questions like:
+        - "What services do you offer?"
+        - "What can I apply for?"
+        - "Show me available services"
+        - "What services are there?"
+        - "I need help with a government service"
+        - "What do you provide?"
       operationId: listServices
       responses:
         "200":
@@ -41,24 +51,57 @@ paths:
                       - id: svc-001
                         name: Passport Renewal
                       - id: svc-002
-                        name: Driver’s Permit Application
-
+                        name: Driver's Permit Application
+                      - id: svc-003
   /api/branches:
     get:
       tags: [Catalog]
       summary: List available branches
-      description: Optionally filter branches by serviceId.
+      description: |
+        Get branch locations where services are offered. Can filter by service name.
+        
+        Users might ask questions like:
+        - "Where can I get a passport?"
+        - "Which branches offer driver's permit?"
+        - "Where are your offices?"
+        - "Show me locations"
+        - "Where can I apply for [service name]?"
+        - "Nearest branch for [service]"
       operationId: listBranches
       parameters:
-        - name: serviceId
+        - name: serviceName
           in: query
           required: false
           schema:
             type: string
-          description: If provided, only branches offering this service are returned.
-      responses:
-        "200":
-          description: A list of branches
+          description: Filter branches by service name (e.g., "Passport Renewal", "Birth Certificate")
+          example: Passport Renewal
+        - name: serviceId
+          in: query
+          required: false
+          schema:
+                    branches:
+                      - id: br-001
+                        name: Port of Spain
+                        serviceIds: [svc-001, svc-002, svc-003, svc-004]
+                      - id: br-002
+                        name: San Fernando
+                        serviceIds: [svc-001, svc-003]
+                      - id: br-003
+  /api/selections/service:
+    post:
+      tags: [Selections]
+      summary: Select a service
+      description: |
+        User selects a specific service they want to apply for.
+        
+        Users might say:
+        - "I want to apply for a passport"
+        - "I need a birth certificate"
+        - "Book passport renewal"
+        - "I'd like to get a driver's permit"
+        - "Help me with [service name]"
+      operationId: selectService branches
           content:
             application/json:
               schema:
@@ -105,11 +148,20 @@ paths:
                       branches: /api/branches?serviceId=svc-001
                       selectBranch: /api/selections/branch
         "400":
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+  /api/selections/branch:
+    post:
+      tags: [Selections]
+      summary: Select a branch for a previously selected service
+      description: |
+        User selects which branch location they want to visit for their service.
+        
+        Users might say:
+        - "I'll go to Port of Spain"
+        - "Book me at San Fernando branch"
+        - "The Chaguanas location please"
+        - "I prefer [branch name]"
+        - "Schedule at [branch]"
+      operationId: selectBranchents/schemas/Error"
         "404":
           description: Service not found
           content:

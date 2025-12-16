@@ -8,18 +8,25 @@ const router = express.Router();
 const services = [
   { id: 'svc-001', name: 'Passport Renewal' },
   { id: 'svc-002', name: 'Driver\'s Permit Application' },
+  { id: 'svc-003', name: 'Birth Certificate' },
+  { id: 'svc-004', name: 'National ID Card' },
 ];
 
 const branches = [
   {
     id: 'br-001',
     name: 'Port of Spain',
-    serviceIds: ['svc-001', 'svc-002'],
+    serviceIds: ['svc-001', 'svc-002', 'svc-003', 'svc-004'],
   },
   {
     id: 'br-002',
     name: 'San Fernando',
-    serviceIds: ['svc-001'],
+    serviceIds: ['svc-001', 'svc-003'],
+  },
+  {
+    id: 'br-003',
+    name: 'Chaguanas',
+    serviceIds: ['svc-002', 'svc-004'],
   },
 ];
 
@@ -45,13 +52,26 @@ router.get('/services', (req, res) => {
 router.get(
   '/branches',
   query('serviceId').optional().isString(),
+  query('serviceName').optional().isString(),
   handleValidation,
   (req, res) => {
-    const { serviceId } = req.query;
+    const { serviceId, serviceName } = req.query;
     
     let filteredBranches = branches;
     
-    if (serviceId) {
+    // Filter by service name (more natural for users)
+    if (serviceName) {
+      const service = services.find(s => 
+        s.name.toLowerCase() === serviceName.toLowerCase()
+      );
+      if (service) {
+        filteredBranches = branches.filter(branch => 
+          branch.serviceIds.includes(service.id)
+        );
+      }
+    }
+    // Fallback to serviceId for backward compatibility
+    else if (serviceId) {
       filteredBranches = branches.filter(branch => 
         branch.serviceIds.includes(serviceId)
       );
