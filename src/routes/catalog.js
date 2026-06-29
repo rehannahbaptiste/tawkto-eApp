@@ -13,17 +13,9 @@ router.post("/appointment-deeplink", async (req, res) => {
       });
     }
 
-    const result = await createAppointmentDeepLink({
-      serviceId,
-      branchId
-    });
+    const result = await createAppointmentDeepLink({ serviceId, branchId });
 
-    const message = result?.responses?.find((item) => item.type === "text")?.message;
-
-    return res.json({
-      message,
-      raw: result
-    });
+    return res.json(result);
   } catch (error) {
     console.error(error);
 

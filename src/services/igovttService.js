@@ -3,10 +3,8 @@ export async function createAppointmentDeepLink({ serviceId, branchId }) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-
-      // Adjust these header names if your existing API expects different names
-      "devKey": process.env.IGOVTT_DEV_KEY,
-      "token": process.env.IGOVTT_TOKEN
+      devKey: process.env.IGOVTT_DEV_KEY,
+      token: process.env.IGOVTT_TOKEN
     },
     body: JSON.stringify({
       attributes: {
@@ -17,10 +15,18 @@ export async function createAppointmentDeepLink({ serviceId, branchId }) {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-
-    throw new Error(`iGovTT API failed: ${response.status} ${errorText}`);
+    const errorBody = await response.text();
+    throw new Error(`iGovTT API error ${response.status}: ${errorBody}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  const message = data?.responses?.find((item) => item.type === "text")?.message;
+
+  const urlMatch = message?.match(/https?:\/\/\S+/);
+  const appointmentUrl = urlMatch ? urlMatch[0] : null;
+
+  return {
+    message,
+    appointmentUrl
+  };
 }
