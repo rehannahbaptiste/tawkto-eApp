@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import catalogRoutes from "./routes/catalog.js";
+import { mountMcpServer } from "./mcpServer.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
+mountMcpServer(app);
 app.use(express.static("public"));
 
 app.get("/health", (req, res) => {
