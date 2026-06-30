@@ -1,0 +1,91 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "iGovTT AI Tools",
+    "version": "1.0.0",
+    "description": "Tools used by tawk.to AI Assist to retrieve iGovTT services and create appointment links."
+  },
+  "servers": [
+    {
+      "url": "https://tawkto-eapp.onrender.com"
+    }
+  ],
+  "paths": {
+    "/api/catalog/services": {
+      "get": {
+        "operationId": "listServices",
+        "summary": "List iGovTT services",
+        "description": "Always use this tool when a visitor asks what services are available, asks to list services, asks what services iGovTT offers, or asks about available government services. Do not answer from the Knowledge Hub for service lists. Only answer using the services returned by this API.",
+        "responses": {
+          "200": {
+            "description": "List of available services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "services": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "description": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/catalog/appointment-deeplink": {
+      "post": {
+        "operationId": "createAppointmentDeepLink",
+        "summary": "Create an appointment deeplink",
+        "description": "Use this tool when a visitor wants to book or finalize an appointment and the serviceId and branchId are known. This creates a unique appointment link.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["serviceId", "branchId"],
+                "properties": {
+                  "serviceId": {
+                    "type": "string",
+                    "description": "The service ID. For the test use case, use 88."
+                  },
+                  "branchId": {
+                    "type": "string",
+                    "description": "The branch ID. For the test use case, use 100."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Appointment link created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" },
+                    "appointmentUrl": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

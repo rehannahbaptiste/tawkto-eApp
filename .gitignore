@@ -38,7 +38,4 @@ build/
 *.tmp
 *.temp
 
-# Old Laravel files (remove manually if locked)
-public/
-
 
