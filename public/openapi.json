@@ -14,24 +14,30 @@
     "/api/catalog/services": {
       "get": {
         "operationId": "listServices",
-        "summary": "List iGovTT services",
-        "description": "Always use this tool when a visitor asks what services are available, asks to list services, asks what services iGovTT offers, or asks about available government services. Do not answer from the Knowledge Hub for service lists. Only answer using the services returned by this API.",
+        "summary": "List iGovTT appointment services",
+        "description": "Always use this tool when a visitor asks what services are available for appointment booking, asks to list services, or asks what iGovTT services can be booked. Do not answer from the Knowledge Hub for service lists. Only answer using the services returned by this API.",
         "responses": {
           "200": {
-            "description": "List of available services",
+            "description": "List of available appointment services",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "question": {
+                      "type": "string"
+                    },
                     "services": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "id": { "type": "string" },
-                          "name": { "type": "string" },
-                          "description": { "type": "string" }
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
                         }
                       }
                     }
@@ -54,7 +60,10 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["serviceId", "branchId"],
+                "required": [
+                  "serviceId",
+                  "branchId"
+                ],
                 "properties": {
                   "serviceId": {
                     "type": "string",
@@ -77,8 +86,12 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": { "type": "string" },
-                    "appointmentUrl": { "type": "string" }
+                    "message": {
+                      "type": "string"
+                    },
+                    "appointmentUrl": {
+                      "type": "string"
+                    }
                   }
                 }
               }
