@@ -3,9 +3,9 @@ export async function getServices() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: process.env.IGOVTT_DEV_KEY,
-      token: process.env.IGOVTT_TOKEN,
-      Authorization:
+      "apikey": process.env.IGOVTT_DEV_KEY,
+      "token": process.env.IGOVTT_TOKEN,
+      "Authorization":
         "Basic " +
         Buffer.from(`token:${process.env.IGOVTT_TOKEN}`).toString("base64")
     },
