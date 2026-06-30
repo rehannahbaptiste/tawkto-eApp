@@ -1,104 +1,104 @@
 {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "iGovTT AI Tools",
-    "version": "1.0.0",
-    "description": "Tools used by tawk.to AI Assist to retrieve iGovTT services and create appointment links."
-  },
-  "servers": [
-    {
-      "url": "https://tawkto-eapp.onrender.com"
-    }
-  ],
-  "paths": {
-    "/api/catalog/services": {
-      "get": {
-        "operationId": "listServices",
-        "summary": "List iGovTT appointment services",
-        "description": "Always use this tool when a visitor asks what services are available for appointment booking, asks to list services, or asks what iGovTT services can be booked. Do not answer from the Knowledge Hub for service lists. Only answer using the services returned by this API.",
-        "responses": {
-          "200": {
-            "description": "List of available appointment services",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "question": {
-                      "type": "string"
-                    },
-                    "services": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    "openapi": "3.0.3",
+    "info": {
+        "title": "iGovTT AI Tools",
+        "version": "1.0.0",
+        "description": "Tools used by tawk.to AI Assist to retrieve iGovTT services and create appointment links."
     },
-    "/api/catalog/appointment-deeplink": {
-      "post": {
-        "operationId": "createAppointmentDeepLink",
-        "summary": "Create an appointment deeplink",
-        "description": "Use this tool when a visitor wants to book or finalize an appointment and the serviceId and branchId are known. This creates a unique appointment link.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "serviceId",
-                  "branchId"
-                ],
-                "properties": {
-                  "serviceId": {
-                    "type": "string",
-                    "description": "The service ID. For the test use case, use 88."
-                  },
-                  "branchId": {
-                    "type": "string",
-                    "description": "The branch ID. For the test use case, use 100."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Appointment link created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    },
-                    "appointmentUrl": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
+    "servers": [
+        {
+            "url": "https://tawkto-eapp.onrender.com"
         }
-      }
+    ],
+    "paths": {
+        "/api/catalog/services": {
+            "get": {
+                "operationId": "listServices",
+                "summary": "List iGovTT appointment services",
+                "description": "Use this tool immediately when the visitor provides both a service ID and branch ID for booking an appointment. Do not ask for branch name if branchId is provided. Do not ask for service name if serviceId is provided. Call this tool with serviceId and branchId exactly as supplied by the visitor.",
+                "responses": {
+                    "200": {
+                        "description": "List of available appointment services",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "string"
+                                        },
+                                        "services": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/catalog/appointment-deeplink": {
+            "post": {
+                "operationId": "createAppointmentDeepLink",
+                "summary": "Create an appointment deeplink",
+                "description": "Use this tool when a visitor wants to book or finalize an appointment and the serviceId and branchId are known. This creates a unique appointment link.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "serviceId",
+                                    "branchId"
+                                ],
+                                "properties": {
+                                    "serviceId": {
+                                        "type": "string",
+                                        "description": "The numeric service ID supplied by the visitor. Use the exact value given by the visitor."
+                                    },
+                                    "branchId": {
+                                        "type": "string",
+                                        "description": "The numeric branch ID supplied by the visitor. Use the exact value given by the visitor."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Appointment link created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "appointmentUrl": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
 }
