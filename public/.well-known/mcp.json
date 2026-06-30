@@ -1,0 +1,6 @@
+{
+  "name": "igovtt-tools",
+  "description": "iGovTT appointment and service tools",
+  "transport": "streamable-http",
+  "url": "https://tawkto-eapp.onrender.com/mcp"
+}
