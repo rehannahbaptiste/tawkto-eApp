@@ -104,7 +104,7 @@
             "post": {
                 "operationId": "listBranches",
                 "summary": "List branches for a selected appointment service",
-                "description": "Use this tool after the visitor selects an appointment service. Pass the serviceId returned by listServices. Show branch names and addresses to the visitor, but do not expose branch IDs. Retain the selected branch ID for later appointment booking.",
+                "description": "Call this tool immediately after the visitor chooses a service from listServices. Use the id associated with the selected service name. For example, if the visitor selects RGD Test and listServices returned an object with name RGD Test and id 47, call this tool with serviceId 47. Never ask the visitor for a service ID. After this tool returns, show every branch name and address from the branches array.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -117,7 +117,7 @@
                                 "properties": {
                                     "serviceId": {
                                         "type": "string",
-                                        "description": "The service ID returned by the listServices tool for the service selected by the visitor."
+                                        "description": "The id of the service selected by the visitor. Obtain this by matching the visitor's service name to the results from listServices. Never ask the visitor to provide this ID."
                                     }
                                 }
                             }

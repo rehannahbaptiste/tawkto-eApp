@@ -32,14 +32,19 @@ router.post("/branches", async (req, res) => {
       });
     }
 
+    console.log("Listing branches for serviceId:", serviceId);
+
     const result = await getBranches({ serviceId });
+
+    console.log("Branches result:", JSON.stringify(result));
 
     return res.json(result);
   } catch (error) {
     console.error("Unable to retrieve branches:", error);
 
     return res.status(500).json({
-      error: "Unable to retrieve branches"
+      error: "Unable to retrieve branches",
+      details: error.message
     });
   }
 });
