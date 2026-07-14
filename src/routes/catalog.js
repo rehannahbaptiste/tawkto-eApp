@@ -6,6 +6,7 @@ import {
   createAppointmentDeepLink
 } from "../services/igovttService.js";
 
+import express from "express";
 const router = express.Router();
 
 router.get("/services", async (req, res) => {
