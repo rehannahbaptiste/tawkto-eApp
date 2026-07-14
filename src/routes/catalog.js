@@ -51,17 +51,19 @@ router.post("/branches", async (req, res) => {
 
 router.post("/appointment-deeplink", async (req, res) => {
   try {
-    const { serviceId, branchId } = req.body;
+    const { serviceId, branchId, selectedDate, selectedTime } = req.body;
 
-    if (!serviceId || !branchId) {
+    if (!serviceId || !branchId || !selectedDate) {
       return res.status(400).json({
-        error: "serviceId and branchId are required"
+        error: "serviceId, branchId and selectedDate are required"
       });
     }
 
     const result = await createAppointmentDeepLink({
       serviceId,
-      branchId
+      branchId,
+      selectedDate,
+      selectedTime
     });
 
     return res.json(result);

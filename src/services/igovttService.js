@@ -10,12 +10,7 @@ export async function getServices() {
         Buffer.from(`token:${process.env.IGOVTT_TOKEN}`).toString("base64")
     },
     body: JSON.stringify({
-      attributes: {
-        serviceId: "41",
-        branchId: "9",
-        branchName: "Port of Spain",
-        selected_date: "2025-09-29"
-      }
+      attributes: {}
     })
   });
 
@@ -42,7 +37,12 @@ export async function getServices() {
   };
 }
 
-export async function createAppointmentDeepLink({ serviceId, branchId }) {
+export async function createAppointmentDeepLink({
+  serviceId,
+  branchId,
+  selectedDate,
+  selectedTime
+}) {
   const response = await fetch(`${process.env.IGOVTT_API_BASE_URL}/deeplink`, {
     method: "POST",
     headers: {
@@ -56,7 +56,9 @@ export async function createAppointmentDeepLink({ serviceId, branchId }) {
     body: JSON.stringify({
       attributes: {
         serviceId,
-        branchId
+        branchId,
+        selected_date: selectedDate,
+        selected_time: selectedTime
       }
     })
   });
@@ -232,6 +234,18 @@ export async function getAvailableTimeSlots({
     (item) => item.type === "text"
   );
 
+  const quickReplies = data.responses?.find(
+    (item) => item.type === "quickReplies"
+  );
+
+  const timeSlots =
+    quickReplies?.buttons
+      ?.map((button) => ({
+        label: button.title,
+        value: String(button.value)
+      }))
+      .filter((slot) => slot.label && slot.value) ?? [];
+
   const message = textResponse?.message || "";
 
   const slotCountMatch = message.match(/(\d+)\s+slots?\s+available/i);
@@ -244,7 +258,7 @@ export async function getAvailableTimeSlots({
 
   const availableSlotCount = slotCountMatch
     ? Number(slotCountMatch[1])
-    : null;
+    : timeSlots.length || null;
 
   const dateLabel = dateMatch
     ? dateMatch[1].trim()
@@ -255,12 +269,18 @@ export async function getAvailableTimeSlots({
     : null;
 
   return {
+    question:
+      quickReplies?.title ||
+      (timeSlots.length
+        ? "Which time works for you?"
+        : null),
     message:
       message ||
       "Time-slot availability could not be determined.",
     serviceId: String(serviceId),
     branchId: String(branchId),
     selectedDate: String(selectedDate),
+    timeSlots,
     availableSlotCount,
     dateLabel,
     timeRange,

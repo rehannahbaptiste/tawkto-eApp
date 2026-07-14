@@ -53,7 +53,7 @@
             "post": {
                 "operationId": "createAppointmentDeepLink",
                 "summary": "Create an appointment deeplink",
-                "description": "Use this tool immediately when the visitor provides both serviceId and branchId and wants an appointment booking link. Do not ask for branch name if branchId is provided. After the tool returns, reply with the appointmentUrl.",
+                "description": "Call this tool only after the visitor has selected a service, a branch and a date (from listAvailableDates), and has explicitly confirmed they want to book that service at that branch on that date. If listAvailableTimeSlots returned a non-empty timeSlots array, also require the visitor to pick one of those times first and pass it as selectedTime. If timeSlots was empty, do not ask the visitor to pick an exact time (this API cannot offer individual times for that case) — just confirm the date and call this tool without selectedTime; the visitor will choose their exact time on the booking page linked by appointmentUrl. Never call this tool before the required values for the case you're in are known and confirmed. After the tool returns, reply with the appointmentUrl.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -62,7 +62,8 @@
                                 "type": "object",
                                 "required": [
                                     "serviceId",
-                                    "branchId"
+                                    "branchId",
+                                    "selectedDate"
                                 ],
                                 "properties": {
                                     "serviceId": {
@@ -72,6 +73,15 @@
                                     "branchId": {
                                         "type": "string",
                                         "description": "The numeric branch ID supplied by the visitor. Use the exact value given by the visitor."
+                                    },
+                                    "selectedDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "The date value returned by listAvailableDates, in YYYY-MM-DD format."
+                                    },
+                                    "selectedTime": {
+                                        "type": "string",
+                                        "description": "Optional. Only include this if listAvailableTimeSlots returned a non-empty timeSlots array and the visitor picked one — pass its value. Omit entirely if timeSlots was empty."
                                     }
                                 }
                             }
@@ -237,7 +247,7 @@
             "post": {
                 "operationId": "listAvailableTimeSlots",
                 "summary": "Check available appointment time slots",
-                "description": "Use this tool after the visitor selects a service, branch and appointment date. Pass the selected serviceId, branchId and date. Tell the visitor the number of available slots and the appointment opening-hours range. Do not invent individual appointment times because this API only returns a summary.",
+                "description": "Use this tool after the visitor selects a service, branch and appointment date. Pass the selected serviceId, branchId and date. If the timeSlots array is non-empty, show every label to the visitor and have them pick one, then use the matching value as selectedTime for createAppointmentDeepLink. If timeSlots is empty, fall back to telling the visitor the availableSlotCount and timeRange. Never invent individual appointment times that are not present in the response.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -276,6 +286,10 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
+                                        "question": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
                                         "message": {
                                             "type": "string"
                                         },
@@ -288,6 +302,20 @@
                                         "selectedDate": {
                                             "type": "string",
                                             "format": "date"
+                                        },
+                                        "timeSlots": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
                                         },
                                         "availableSlotCount": {
                                             "type": "integer",
