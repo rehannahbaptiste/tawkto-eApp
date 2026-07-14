@@ -2,6 +2,7 @@ import {
   getServices,
   getBranches,
   getAvailableDates,
+  getAvailableTimeSlots,
   createAppointmentDeepLink
 } from "../services/igovttService.js";
 
@@ -88,6 +89,40 @@ router.post("/available-dates", async (req, res) => {
 
     return res.status(500).json({
       error: "Unable to retrieve available dates"
+    });
+  }
+});
+
+router.post("/available-time-slots", async (req, res) => {
+  try {
+    const {
+      serviceId,
+      branchId,
+      selectedDate
+    } = req.body;
+
+    if (!serviceId || !branchId || !selectedDate) {
+      return res.status(400).json({
+        error:
+          "serviceId, branchId and selectedDate are required"
+      });
+    }
+
+    const result = await getAvailableTimeSlots({
+      serviceId,
+      branchId,
+      selectedDate
+    });
+
+    return res.json(result);
+  } catch (error) {
+    console.error(
+      "Unable to retrieve available time slots:",
+      error
+    );
+
+    return res.status(500).json({
+      error: "Unable to retrieve available time slots"
     });
   }
 });

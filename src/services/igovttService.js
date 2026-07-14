@@ -78,55 +78,6 @@ export async function createAppointmentDeepLink({ serviceId, branchId }) {
   };
 }
 
-
-export async function getBranches({ serviceId }) {
-  const response = await fetch(
-    `${process.env.IGOVTT_API_BASE_URL}/branches`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: process.env.IGOVTT_DEV_KEY,
-        token: process.env.IGOVTT_TOKEN,
-        Authorization:
-          "Basic " +
-          Buffer.from(`token:${process.env.IGOVTT_TOKEN}`).toString("base64")
-      },
-      body: JSON.stringify({
-        attributes: {
-          serviceId
-        }
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-
-    throw new Error(
-      `iGovTT branches API error ${response.status}: ${errorBody}`
-    );
-  }
-
-  const data = await response.json();
-
-  const quickReplies = data.responses?.find(
-    (item) => item.type === "quickReplies"
-  );
-
-  const branches =
-    quickReplies?.buttons?.map((button) => ({
-      id: String(button.value),
-      name: button.title
-    })) ?? [];
-
-  return {
-    question: quickReplies?.title || "Which branch would you like?",
-    serviceId: String(serviceId),
-    branches
-  };
-}
-
 export async function getBranches({ serviceId }) {
   const response = await fetch(
     `${process.env.IGOVTT_API_BASE_URL}/branches`,
@@ -237,5 +188,85 @@ export async function getAvailableDates({ serviceId, branchId }) {
     serviceId: String(serviceId),
     branchId: String(branchId),
     dates
+  };
+}
+
+export async function getAvailableTimeSlots({
+  serviceId,
+  branchId,
+  selectedDate
+}) {
+  const response = await fetch(
+    `${process.env.IGOVTT_API_BASE_URL}/timeslots`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: process.env.IGOVTT_DEV_KEY,
+        token: process.env.IGOVTT_TOKEN,
+        Authorization:
+          "Basic " +
+          Buffer.from(`token:${process.env.IGOVTT_TOKEN}`).toString("base64")
+      },
+      body: JSON.stringify({
+        attributes: {
+          serviceId,
+          branchId,
+          selected_date: selectedDate
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+
+    throw new Error(
+      `iGovTT time slots API error ${response.status}: ${errorBody}`
+    );
+  }
+
+  const data = await response.json();
+
+  const textResponse = data.responses?.find(
+    (item) => item.type === "text"
+  );
+
+  const message = textResponse?.message || "";
+
+  const slotCountMatch = message.match(/(\d+)\s+slots?\s+available/i);
+  const dateMatch = message.match(
+    /slots?\s+available:\s*([^\n]+)/i
+  );
+  const hoursMatch = message.match(
+    /Appt Opening Hours:\s*([^\n]+)/i
+  );
+
+  const availableSlotCount = slotCountMatch
+    ? Number(slotCountMatch[1])
+    : null;
+
+  const dateLabel = dateMatch
+    ? dateMatch[1].trim()
+    : null;
+
+  const timeRange = hoursMatch
+    ? hoursMatch[1].trim()
+    : null;
+
+  return {
+    message:
+      message ||
+      "Time-slot availability could not be determined.",
+    serviceId: String(serviceId),
+    branchId: String(branchId),
+    selectedDate: String(selectedDate),
+    availableSlotCount,
+    dateLabel,
+    timeRange,
+    hasAvailability:
+      availableSlotCount !== null
+        ? availableSlotCount > 0
+        : null
   };
 }

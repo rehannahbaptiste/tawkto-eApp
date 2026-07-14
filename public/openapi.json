@@ -232,6 +232,86 @@
                     }
                 }
             }
+        },
+        "/api/catalog/available-time-slots": {
+            "post": {
+                "operationId": "listAvailableTimeSlots",
+                "summary": "Check available appointment time slots",
+                "description": "Use this tool after the visitor selects a service, branch and appointment date. Pass the selected serviceId, branchId and date. Tell the visitor the number of available slots and the appointment opening-hours range. Do not invent individual appointment times because this API only returns a summary.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "serviceId",
+                                    "branchId",
+                                    "selectedDate"
+                                ],
+                                "properties": {
+                                    "serviceId": {
+                                        "type": "string",
+                                        "description": "The service ID returned by listServices."
+                                    },
+                                    "branchId": {
+                                        "type": "string",
+                                        "description": "The branch ID returned by listBranches."
+                                    },
+                                    "selectedDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "The date value returned by listAvailableDates, in YYYY-MM-DD format."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Summary of time-slot availability",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "serviceId": {
+                                            "type": "string"
+                                        },
+                                        "branchId": {
+                                            "type": "string"
+                                        },
+                                        "selectedDate": {
+                                            "type": "string",
+                                            "format": "date"
+                                        },
+                                        "availableSlotCount": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "dateLabel": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "timeRange": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "hasAvailability": {
+                                            "type": "boolean",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
