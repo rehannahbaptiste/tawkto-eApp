@@ -99,6 +99,139 @@
                     }
                 }
             }
+        },
+        "/api/catalog/branches": {
+            "post": {
+                "operationId": "listBranches",
+                "summary": "List branches for a selected appointment service",
+                "description": "Use this tool after the visitor selects an appointment service. Pass the serviceId returned by listServices. Show branch names and addresses to the visitor, but do not expose branch IDs. Retain the selected branch ID for later appointment booking.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "serviceId"
+                                ],
+                                "properties": {
+                                    "serviceId": {
+                                        "type": "string",
+                                        "description": "The service ID returned by the listServices tool for the service selected by the visitor."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Branches available for the selected service",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "string"
+                                        },
+                                        "serviceId": {
+                                            "type": "string"
+                                        },
+                                        "branches": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/catalog/available-dates": {
+            "post": {
+                "operationId": "listAvailableDates",
+                "summary": "List available appointment dates",
+                "description": "Use this tool after the visitor selects a service and branch. Pass the selected serviceId and branchId. Show the date labels to the visitor, but retain the date value in YYYY-MM-DD format for the next tool call.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "serviceId",
+                                    "branchId"
+                                ],
+                                "properties": {
+                                    "serviceId": {
+                                        "type": "string",
+                                        "description": "The service ID returned by listServices."
+                                    },
+                                    "branchId": {
+                                        "type": "string",
+                                        "description": "The branch ID returned by listBranches."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Available dates for the selected service and branch",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "string"
+                                        },
+                                        "serviceId": {
+                                            "type": "string"
+                                        },
+                                        "branchId": {
+                                            "type": "string"
+                                        },
+                                        "dates": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "value": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
